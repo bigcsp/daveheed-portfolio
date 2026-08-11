@@ -5,7 +5,7 @@ import { ArrowDownRight, ArrowUpRight, Github, Mail, Menu, Moon, Send, Sun, X } 
 import { useEffect, useState } from "react";
 
 type Repo = { name: string; description: string | null; language: string | null; html_url: string; stargazers_count: number };
-const nav = ["About", "Work", "Stack", "Contact"];
+const nav = [{ label: "About", href: "/about" }, { label: "Projects", href: "/projects" }, { label: "Stack", href: "#stack" }, { label: "Contact", href: "/contact" }];
 const reveal = { initial: { opacity: 0, y: 22 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, amount: .18 }, transition: { duration: .6, ease: [0.16, 1, .3, 1] as const } };
 
 export default function Portfolio() {
@@ -16,10 +16,10 @@ export default function Portfolio() {
   return <main>
     <div className="fixed inset-0 -z-10 grid-bg" />
     <header className="fixed top-0 z-40 w-full border-b border-[var(--line)] bg-[color:var(--background)]/80 backdrop-blur-xl"><div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-6">
-      <a href="#top" className="display text-xl font-bold tracking-[-.08em]">ED<span className="text-lime">.</span></a>
-      <nav className="hidden items-center gap-7 md:flex">{nav.map(x => <a key={x} href={`#${x.toLowerCase()}`} className="text-xs text-[var(--muted)] transition hover:text-[var(--foreground)]">{x}</a>)}</nav>
+      <a href="/" className="display text-xl font-bold tracking-[-.08em]">ED<span className="text-lime">.</span></a>
+      <nav className="hidden items-center gap-7 md:flex">{nav.map(x => <a key={x.label} href={x.href} className="text-xs text-[var(--muted)] transition hover:text-[var(--foreground)]">{x.label}</a>)}</nav>
       <div className="flex items-center gap-3"><button onClick={toggleTheme} aria-label="Toggle colour mode" className="grid h-9 w-9 place-items-center rounded-full border border-[var(--line)]">{theme === "dark" ? <Sun size={15}/> : <Moon size={15}/>}</button><button className="md:hidden" onClick={() => setOpen(!open)} aria-label="Navigation menu">{open ? <X/> : <Menu/>}</button><a href="#contact" className="hidden rounded-full bg-lime px-4 py-2 text-xs font-bold text-ink md:block">Let&apos;s talk</a></div>
-    </div>{open && <nav className="flex flex-col gap-5 border-t border-[var(--line)] bg-[var(--background)] px-6 py-6 md:hidden">{nav.map(x => <a onClick={() => setOpen(false)} key={x} href={`#${x.toLowerCase()}`}>{x}</a>)}</nav>}</header>
+    </div>{open && <nav className="flex flex-col gap-5 border-t border-[var(--line)] bg-[var(--background)] px-6 py-6 md:hidden">{nav.map(x => <a onClick={() => setOpen(false)} key={x.label} href={x.href}>{x.label}</a>)}</nav>}</header>
 
     <section id="top" className="relative flex min-h-screen items-center overflow-hidden px-6 pt-16"><motion.div style={{ y: orbY }} className="absolute left-1/2 top-[22%] -z-10 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-lime/10 blur-[110px]" />
       <div className="mx-auto w-full max-w-[1200px]"><motion.p {...reveal} className="eyebrow mb-7">Available for selected collaborations · 2026</motion.p><motion.h1 initial={{ opacity: 0, y: 35 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .9, ease: [0.16, 1, .3, 1] }} className="display max-w-5xl text-[clamp(3.6rem,9.8vw,9rem)] font-bold leading-[.84]">I make digital<br/><span className="text-lime">movement</span> feel easy.</motion.h1>
