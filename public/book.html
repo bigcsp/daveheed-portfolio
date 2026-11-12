@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ENGLISHDAVEHEED — portfolio.</title>
+<meta name="description" content="Portfolio of ENGLISHDAVEHEED, an independent developer and content creator in Lagos, Nigeria.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --rust:#A4521F;
+    --rust-dark:#7E3D16;
+    --paper:#F4F2ED;
+    --desk:#E3E1DC;
+    --ink:#2B2622;
+    --mute:#8C8379;
+    --line:#CDBFAF;
+    --head:"Outfit",system-ui,sans-serif;
+    --body:"DM Sans",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--desk);color:var(--ink);font:400 1rem/1.6 var(--body);-webkit-font-smoothing:antialiased;display:flex;flex-direction:column}
+  a{color:inherit}
+  :focus-visible{outline:2px solid var(--rust);outline-offset:3px}
+
+  /* viewer chrome, like an online flipbook reader */
+  .viewer{flex:1;display:flex;align-items:center;justify-content:center;padding:clamp(1rem,3vw,2.5rem);perspective:2200px}
+  .book{position:relative;width:min(1100px,100%);aspect-ratio:16/10;max-height:calc(100vh - 110px)}
+  .page{position:absolute;inset:0;background:var(--paper);box-shadow:0 1px 2px rgba(43,38,34,.08),0 18px 40px -18px rgba(43,38,34,.35);display:grid;grid-template-columns:1fr 1fr;overflow:hidden;
+        opacity:0;visibility:hidden;transform-origin:left center;transition:transform .7s cubic-bezier(.3,.7,.2,1),opacity .5s,visibility 0s .7s}
+  .page.is-on{opacity:1;visibility:visible;transform:none;transition:transform .7s cubic-bezier(.3,.7,.2,1),opacity .5s .1s,visibility 0s}
+  .page.is-past{transform:rotateY(-14deg) translateX(-4%)}
+  .page.is-next{transform:rotateY(10deg) translateX(4%)}
+  .page::after{content:"";position:absolute;top:0;bottom:0;left:50%;width:40px;transform:translateX(-50%);pointer-events:none;
+        background:linear-gradient(90deg,transparent,rgba(43,38,34,.07) 45%,rgba(43,38,34,.12) 50%,rgba(43,38,34,.07) 55%,transparent)}
+  .page.single{grid-template-columns:1fr}
+  .page.single::after{display:none}
+
+  .controls{display:flex;justify-content:center;align-items:center;gap:1rem;padding:0 1rem 1.25rem;font:500 .9rem var(--head);color:var(--mute)}
+  .controls button{font:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--line);width:2.6rem;height:2.6rem;border-radius:50%;cursor:pointer;font-size:1.1rem}
+  .controls button:hover:not(:disabled){border-color:var(--rust);color:var(--rust)}
+  .controls button:disabled{opacity:.35;cursor:default}
+  .dots{display:flex;gap:.4rem}
+  .dots button{width:.55rem;height:.55rem;padding:0;border:0;border-radius:50%;background:var(--line)}
+  .dots button[aria-current="true"]{background:var(--rust)}
+
+  /* cover */
+  .cover{background:var(--rust);color:var(--paper);position:relative;padding:clamp(1.5rem,4.5vw,3.5rem)}
+  .cover .tag{position:absolute;top:clamp(1.5rem,4.5vw,3.5rem);right:clamp(1.5rem,4.5vw,3.5rem);text-align:right;font:500 clamp(.7rem,1.1vw,.85rem)/1.35 var(--head)}
+  .cover .bottom{position:absolute;left:clamp(1.5rem,4.5vw,3.5rem);bottom:clamp(1.5rem,4.5vw,3.5rem);display:flex;align-items:flex-end;gap:1.25rem}
+  .cover .name{font:500 clamp(.75rem,1.2vw,.95rem) var(--head);margin-bottom:.15rem}
+  .cover h1{font:800 clamp(3rem,9.5vw,7.5rem)/.85 var(--head);letter-spacing:-.03em}
+  .cover svg{width:clamp(48px,7vw,84px);height:auto;margin-bottom:.4rem}
+  .cover .hint{position:absolute;right:clamp(1.5rem,4.5vw,3.5rem);bottom:clamp(1.5rem,4.5vw,3.5rem);font:300 .85rem var(--head);opacity:.8}
+
+  /* shared page content */
+  .side{padding:clamp(1.25rem,4vw,3.25rem);display:flex;flex-direction:column;justify-content:center;min-width:0}
+  .folio{position:absolute;bottom:1rem;font:500 .75rem var(--head);color:var(--mute)}
+  .folio.l{left:1.5rem}.folio.r{right:1.5rem}
+
+  /* contents */
+  .iso{display:flex;align-items:center;justify-content:center}
+  .iso svg{width:min(78%,340px);height:auto}
+  .toc h2{font:300 .85rem var(--head);color:var(--mute);margin-bottom:1.25rem;letter-spacing:.02em}
+  .toc ol{list-style:none}
+  .toc li+li{margin-top:1rem}
+  .toc button{display:grid;grid-template-columns:3.2rem 1fr;align-items:baseline;width:100%;text-align:left;background:none;border:0;cursor:pointer;color:inherit;font:inherit;padding:.15rem 0}
+  .toc .n{font:800 clamp(1.4rem,2.6vw,2rem)/1 var(--head);color:var(--rust)}
+  .toc .t{font:700 clamp(.95rem,1.5vw,1.1rem)/1.2 var(--head)}
+  .toc .s{display:block;font:400 .82rem var(--body);color:var(--mute)}
+  .toc button:hover .t{color:var(--rust)}
+
+  /* project spreads */
+  .visual{background:#EAE6DF;display:flex;align-items:center;justify-content:center;padding:clamp(1rem,3vw,2.5rem);position:relative}
+  .proj .num{font:800 clamp(1.8rem,3.6vw,3rem)/.9 var(--head);color:var(--rust)}
+  .proj h2{font:700 clamp(1.4rem,2.7vw,2.1rem)/1.05 var(--head);margin:.4rem 0 .25rem;letter-spacing:-.01em}
+  .proj .kind{font:500 .85rem var(--head);color:var(--mute)}
+  .proj p{margin-top:1rem;font-size:clamp(.84rem,1.2vw,.97rem);line-height:1.5}
+  .facts{margin-top:1.25rem;display:grid;grid-template-columns:auto 1fr;gap:.35rem 1.25rem;font-size:.85rem}
+  .facts dt{color:var(--mute)}
+  .facts dd{font-weight:500}
+  .proj .go{margin-top:.9rem;display:flex;gap:1.25rem;flex-wrap:wrap;font:500 .9rem var(--head)}
+  .proj .go a{color:var(--rust);text-underline-offset:4px}
+
+  .proj .built{font:500 clamp(.95rem,1.4vw,1.1rem)/1.4 var(--head);color:var(--ink);margin-top:1rem}
+  .proj .built+p{margin-top:.6rem;color:#4A433D}
+  .helps-h{font:700 .85rem var(--head);color:var(--rust);margin-top:1rem}
+  .helps{list-style:none;margin-top:.35rem;font-size:clamp(.82rem,1.15vw,.93rem);line-height:1.4}
+  .helps li{padding-left:1.1rem;position:relative}
+  .helps li+li{margin-top:.25rem}
+  .helps li::before{content:"";position:absolute;left:0;top:.55em;width:.5rem;height:2px;background:var(--rust)}
+  .proj .stack{margin-top:1rem;font-size:.78rem;color:var(--mute)}
+  .proj p{max-width:46ch}
+
+  /* facts page */
+  .about-l .name{font:500 .85rem var(--head);color:var(--mute)}
+  .about-l h2{font:800 clamp(2.6rem,6.5vw,5.2rem)/.88 var(--head);letter-spacing:-.03em;color:var(--rust);margin:.6rem 0 1rem}
+  .about-l p{max-width:30ch;color:#4A433D}
+  .facts-r ul{list-style:none;font-size:clamp(.82rem,1.15vw,.95rem);line-height:1.45}
+  .facts-r li{padding:.75rem 0;border-top:1px solid var(--line)}
+  .facts-r li:last-child{border-bottom:1px solid var(--line)}
+  .facts-r b{display:block;font:700 clamp(.92rem,1.35vw,1.05rem)/1.25 var(--head);margin-bottom:.15rem}
+
+  /* mock visuals */
+  .phone{width:min(56%,230px);aspect-ratio:9/18;background:var(--paper);border:6px solid var(--ink);border-radius:26px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 40px -20px rgba(43,38,34,.5)}
+  .map{flex:1;position:relative;background:
+      linear-gradient(90deg,transparent 47%,#fff 47%,#fff 53%,transparent 53%) 0 0/60px 60px,
+      linear-gradient(0deg,transparent 47%,#fff 47%,#fff 53%,transparent 53%) 0 0/60px 60px,#DCD6CB}
+  .map svg{position:absolute;inset:0;width:100%;height:100%}
+  .ticket{padding:.7rem .8rem;font-size:.7rem;line-height:1.35;border-top:1px solid var(--line)}
+  .ticket b{font:700 .8rem var(--head);display:block}
+  .chat{flex:1;background:#E9E2D6;padding:.7rem .55rem;display:flex;flex-direction:column;gap:.45rem;font-size:.66rem;line-height:1.35}
+  .msg{max-width:84%;padding:.4rem .55rem;border-radius:9px;background:#fff}
+  .msg.me{align-self:flex-end;background:#DCEFD2}
+  .msg .leaf{display:block;width:100%;height:auto;border-radius:6px;margin-bottom:.25rem}
+  .chathead{background:var(--ink);color:var(--paper);font:700 .72rem var(--head);padding:.55rem .7rem}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;width:min(88%,330px)}
+  .tile{background:var(--paper);padding:.5rem;font-size:.7rem;line-height:1.3;box-shadow:0 8px 20px -14px rgba(43,38,34,.6)}
+  .tile i{display:block;aspect-ratio:1;margin-bottom:.4rem}
+  .tile b{font:700 .78rem var(--head);display:block}
+  .short{width:min(48%,200px);aspect-ratio:9/16;background:var(--ink);border-radius:14px;position:relative;overflow:hidden;color:#fff;box-shadow:0 20px 40px -20px rgba(43,38,34,.6)}
+  .short .bg{position:absolute;inset:0;background:radial-gradient(circle at 50% 38%,#3E6B3A 0 30%,#24402A 60%,#14231A)}
+  .short .count{position:absolute;top:22%;left:0;right:0;text-align:center;font:800 2.6rem/1 var(--head)}
+  .short .count small{display:block;font:500 .65rem var(--head);opacity:.85;margin-top:.3rem}
+  .short .cap{position:absolute;left:8%;right:8%;bottom:16%;text-align:center;font:800 .95rem/1.15 var(--head)}
+  .short .cap span{background:var(--rust);padding:0 .2rem}
+  .short .bar{position:absolute;left:8%;right:8%;bottom:8%;height:4px;background:rgba(255,255,255,.3)}
+  .short .bar i{display:block;height:100%;width:62%;background:#fff}
+
+  /* back cover */
+  .back{background:var(--rust);color:var(--paper)}
+  .back .side{padding:clamp(1.5rem,4.5vw,3.5rem)}
+  .back h2{font:800 clamp(2rem,5vw,3.6rem)/.95 var(--head);letter-spacing:-.02em}
+  .back p{margin-top:1rem;max-width:40ch;opacity:.92}
+  .back .links{margin-top:1.75rem;display:flex;flex-direction:column;gap:.6rem;font:500 1.05rem var(--head)}
+  .back .links a{text-underline-offset:5px}
+  .back .tools{font-size:.9rem;opacity:.92}
+  .back .tools b{font:700 .95rem var(--head);display:block;margin-bottom:.35rem;opacity:1}
+  .back .tools+.tools{margin-top:1.4rem}
+
+  /* small screens: the book becomes a scroll of pages */
+  @media (max-width:760px){
+    body{display:block}
+    .viewer{display:block;padding:0}
+    .book{aspect-ratio:auto;max-height:none}
+    .page,.page.is-on,.page.is-past,.page.is-next{position:relative;opacity:1;visibility:visible;transform:none;grid-template-columns:1fr;box-shadow:none}
+    .page::after{display:none}
+    .cover{min-height:85vh}
+    .visual{min-height:380px}
+    .controls{display:none}
+    .folio{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .page,.page.is-on{transition:opacity .2s,visibility 0s!important;transform:none!important}
+  }
+</style>
+</head>
+<body>
+
+<main class="viewer">
+  <div class="book" id="book" aria-roledescription="flipbook">
+
+    <!-- 1 cover -->
+    <section class="page single cover" aria-label="Cover">
+      <div class="tag">developer +<br>content creator</div>
+      <div class="bottom">
+        <div>
+          <div class="name">ENGLISHDAVEHEED</div>
+          <h1>portfolio.</h1>
+        </div>
+        <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M14 52h52l6 8H8z"/><rect x="18" y="20" width="44" height="32" rx="2"/>
+          <path d="M32 31l-6 5 6 5M48 31l6 5-6 5M43 28l-6 16"/>
+        </svg>
+      </div>
+      <div class="hint">Lagos, Nigeria · 2026</div>
+    </section>
+
+    <!-- 2 contents -->
+    <section class="page" aria-label="Contents">
+      <div class="side iso">
+        <svg viewBox="0 0 300 330" fill="none" stroke="#A4521F" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">
+          <!-- hexagon room -->
+          <path d="M150 10L285 88v156L150 322 15 244V88z" stroke-width="5"/>
+          <path d="M150 10v156M15 88l135 78 135-78" stroke-opacity=".35"/>
+          <!-- window on left wall -->
+          <path d="M45 115l50 29v60l-50-29z"/><path d="M70 129.5v60M45 145l50 29"/>
+          <!-- shelves on right wall -->
+          <path d="M190 135l70-40M190 160l70-40"/><path d="M200 128v-14l8-5v14M220 117v-18l10-6v18M240 106v-12l8-4v11"/>
+          <!-- desk -->
+          <path d="M100 230l60-35 70 40-60 35z"/><path d="M100 230v30M170 270v30M230 235v30"/>
+          <!-- laptop -->
+          <path d="M140 228l30-17 30 17-30 17z" fill="#F4F2ED"/><path d="M170 245l0 0M170 211l-2-30 30 17 2 30" fill="#F4F2ED"/>
+          <path d="M176 196l14 8M176 203l10 6"/>
+          <!-- plant -->
+          <path d="M118 222c-6-14-2-26 4-32M118 222c4-12 14-16 20-16M118 222c-10-6-16-4-22 0"/>
+          <path d="M112 222h12l-2 10h-8z"/>
+          <!-- chair -->
+          <path d="M150 290l25-14 22 12-25 14zM175 276v-30l22 12v30"/>
+        </svg>
+      </div>
+      <div class="side toc">
+        <h2>contents</h2>
+        <ol>
+          <li><button data-go="2"><span class="n">01</span><span><span class="t">mag-city errands</span><span class="s">delivery web app · live</span></span></button></li>
+          <li><button data-go="3"><span class="n">02</span><span><span class="t">crop ai</span><span class="s">ai on whatsapp · in build</span></span></button></li>
+          <li><button data-go="4"><span class="n">03</span><span><span class="t">purple vendra</span><span class="s">creative marketplace · planning</span></span></button></li>
+          <li><button data-go="5"><span class="n">04</span><span><span class="t">shorts automation</span><span class="s">video pipeline · running</span></span></button></li>
+        </ol>
+      </div>
+      <span class="folio l">02</span><span class="folio r">03</span>
+    </section>
+
+    <!-- 3 errands -->
+    <section class="page" aria-label="Project 01, Mag-City Errands">
+      <div class="visual">
+        <div class="phone" aria-hidden="true">
+          <div class="map">
+            <svg viewBox="0 0 100 120" preserveAspectRatio="none">
+              <path d="M20 100 L20 70 L50 70 L50 40 L80 40 L80 18" stroke="#A4521F" stroke-width="2.5" fill="none" stroke-dasharray="4 3"/>
+              <circle cx="20" cy="100" r="4" fill="#2B2622"/><circle cx="80" cy="18" r="4" fill="#A4521F"/>
+              <circle cx="50" cy="52" r="6" fill="#A4521F" fill-opacity=".25"/><circle cx="50" cy="52" r="3" fill="#A4521F"/>
+            </svg>
+          </div>
+          <div class="ticket"><b>Rider on the way</b>Pharmacy pickup → Magodo Phase 2<br>Paid with Paystack · ETA 12 min</div>
+        </div>
+      </div>
+      <div class="side proj">
+        <div class="num">01</div>
+        <h2>Mag-City Errands</h2>
+        <div class="kind">Errand and delivery web app · Live</div>
+        <p class="built">I built Mag-City Errands so people in Magodo Phase 2 can get errands done without leaving home.</p>
+        <p>You book a pickup or delivery, pay with Paystack or on WhatsApp, then follow your rider on a live map until the job is done.</p>
+        <h3 class="helps-h">How it helps</h3>
+        <ul class="helps"><li>Saves you the trip to the market, pharmacy or bank</li><li>Shows where your rider is at every moment</li><li>Lets the business assign riders and track every order in one place</li></ul>
+        <p class="stack">Firebase · Paystack · Google Maps · live GPS · push alerts</p>
+        <div class="go"><a href="https://errands-website.vercel.app">Visit the site</a><a href="https://github.com/bigcsp/errands-website">View the code</a></div>
+      </div>
+      <span class="folio l">04</span><span class="folio r">05</span>
+    </section>
+
+    <!-- 4 crop ai -->
+    <section class="page" aria-label="Project 02, Crop AI">
+      <div class="visual">
+        <div class="phone" aria-hidden="true">
+          <div class="chathead">Crop AI</div>
+          <div class="chat">
+            <div class="msg me">
+              <svg class="leaf" viewBox="0 0 120 70"><rect width="120" height="70" fill="#5C7F45"/><path d="M20 55C40 10 90 8 105 15 95 40 60 62 20 55z" fill="#86A95E"/><path d="M20 55L100 17" stroke="#4A6A36" stroke-width="1.5"/><circle cx="62" cy="34" r="5" fill="#5B3B1E"/><circle cx="78" cy="28" r="3.5" fill="#5B3B1E"/><circle cx="50" cy="44" r="3" fill="#5B3B1E"/></svg>
+              What is wrong with my tomato?
+            </div>
+            <div class="msg"><b>Early blight</b> (91% sure). Remove the spotted leaves and keep the foliage dry. Your plants are in the flowering stage.</div>
+            <div class="msg me">Thank you!</div>
+          </div>
+        </div>
+      </div>
+      <div class="side proj">
+        <div class="num">02</div>
+        <h2>Crop AI</h2>
+        <div class="kind">Farming assistant on WhatsApp · In build</div>
+        <p class="built">I'm building Crop AI so farmers can get expert crop advice from the app they already use every day: WhatsApp.</p>
+        <p>A farmer sends a photo of a tomato leaf. Crop AI spots the disease, explains what to do, and says what stage of growth the plant is at.</p>
+        <h3 class="helps-h">How it helps</h3>
+        <ul class="helps"><li>Catches disease early, before it spreads and ruins a harvest</li><li>Gives advice in seconds, with no extension officer needed</li><li>Works on any phone with WhatsApp, with no new app to install</li></ul>
+        <p class="stack">Python · FastAPI · PostgreSQL · PyTorch · OpenCV · WhatsApp API</p>
+        <div class="go"><a href="https://github.com/bigcsp/crop-ai">View the code</a></div>
+      </div>
+      <span class="folio l">06</span><span class="folio r">07</span>
+    </section>
+
+    <!-- 5 purple vendra -->
+    <section class="page" aria-label="Project 03, Purple Vendra">
+      <div class="visual">
+        <div class="grid" aria-hidden="true">
+          <div class="tile"><i style="background:linear-gradient(135deg,#5B2A6E,#8E4FA3)"></i><b>Aso-oke adé</b>Fashion &amp; Adé · ₦45,000</div>
+          <div class="tile"><i style="background:linear-gradient(135deg,#A4521F,#D99A5B)"></i><b>Bronze cast</b>Art &amp; Crafts · ₦120,000</div>
+          <div class="tile"><i style="background:linear-gradient(135deg,#2B2622,#5A5149)"></i><b>Logo package</b>Digital &amp; Design · $80</div>
+          <div class="tile"><i style="background:linear-gradient(135deg,#3E6B3A,#9DBB7C)"></i><b>Event shoot</b>Photo &amp; Video · ₦250,000</div>
+        </div>
+      </div>
+      <div class="side proj">
+        <div class="num">03</div>
+        <h2>Purple Vendra</h2>
+        <div class="kind">Creative marketplace · Planning</div>
+        <p class="built">I'm designing Purple Vendra to give Nigerian creatives one trusted place to sell, at home and to the diaspora.</p>
+        <p>Designers, artists, tailors and photographers list their work. Buyers pay in naira or dollars, and the money is held until the order arrives.</p>
+        <h3 class="helps-h">How it helps</h3>
+        <ul class="helps"><li>Buyers don't lose money to sellers who never deliver</li><li>Creatives reach customers abroad, not just their own city</li><li>Every seller is verified, so buyers know who they're dealing with</li></ul>
+        <p class="stack">Escrow checkout · ₦ and $ payments · seller verification</p>
+      </div>
+      <span class="folio l">08</span><span class="folio r">09</span>
+    </section>
+
+    <!-- 6 shorts -->
+    <section class="page" aria-label="Project 04, Shorts automation">
+      <div class="visual">
+        <div class="short" aria-hidden="true">
+          <div class="bg"></div>
+          <div class="count">48<small>teams at World Cup 2026</small></div>
+          <div class="cap"><span>The biggest</span> World Cup ever</div>
+          <div class="bar"><i></i></div>
+        </div>
+      </div>
+      <div class="side proj">
+        <div class="num">04</div>
+        <h2>Shorts automation</h2>
+        <div class="kind">YouTube video pipeline · Running</div>
+        <p class="built">I built this pipeline to run my YouTube channel, ENGLISHDAVEHEED, without spending hours editing every video.</p>
+        <p>Give it a World Cup topic and it writes the script, records the voice-over, finds footage and edits a finished Short with animated graphics.</p>
+        <h3 class="helps-h">How it helps</h3>
+        <ul class="helps"><li>Turns an idea into a ready-to-post Short in minutes</li><li>Keeps the channel posting regularly</li><li>Gives every video the same clean, branded look</li></ul>
+        <p class="stack">Python · Anthropic API · Edge TTS · Pexels · MoviePy</p>
+        <div class="go"><a href="https://www.youtube.com/@ENGLISHDAVEHEED">Watch the channel</a></div>
+      </div>
+      <span class="folio l">10</span><span class="folio r">11</span>
+    </section>
+
+    <!-- facts -->
+    <section class="page" aria-label="Facts about me">
+      <div class="side about-l">
+        <div class="name">software engineer · lagos</div>
+        <h2>behind<br>the code.</h2>
+        <p>A few things about how I work and what I've built so far.</p>
+      </div>
+      <div class="side facts-r">
+        <ul>
+          <li><b>I work completely solo.</b> Design, code, payments, hosting and support: no team, no employer, just me shipping.</li>
+          <li><b>I went from beginner to live product fast.</b> In May 2026 I was learning VS Code basics. Today I run a delivery app with real payments and live GPS tracking.</li>
+          <li><b>I build AI on a laptop with no graphics card.</b> My models train in the cloud, so the hardware never stops me.</li>
+          <li><b>My first app had its own assistant, "Ade".</b> I built a small guide into Mag-City Errands to help customers find their way around.</li>
+          <li><b>I write code that makes videos.</b> My pipeline draws six kinds of animated graphics, frame by frame, onto every Short.</li>
+        </ul>
+      </div>
+      <span class="folio l">12</span><span class="folio r">13</span>
+    </section>
+
+    <!-- 7 back cover -->
+    <section class="page back" aria-label="About and contact">
+      <div class="side">
+        <h2>let's build something.</h2>
+        <p>I'm an independent developer in Lagos. I build software around how people here already live: paying with Paystack, talking on WhatsApp. I'm open to freelance work and collaborations.</p>
+        <div class="links">
+          <a href="https://github.com/bigcsp">github.com/bigcsp</a>
+          <a href="https://www.youtube.com/@ENGLISHDAVEHEED">youtube.com/@ENGLISHDAVEHEED</a>
+        </div>
+      </div>
+      <div class="side">
+        <div class="tools"><b>Languages</b>JavaScript, Python, HTML &amp; CSS</div>
+        <div class="tools"><b>Platforms</b>Firebase, FastAPI, PostgreSQL, Vercel, GitHub Pages</div>
+        <div class="tools"><b>APIs</b>Anthropic, Paystack, Google Maps, WhatsApp Business</div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<nav class="controls" aria-label="Page controls">
+  <button id="prev" aria-label="Previous page">‹</button>
+  <div class="dots" id="dots"></div>
+  <span id="count" aria-live="polite"></span>
+  <button id="next" aria-label="Next page">›</button>
+</nav>
+
+<script>
+(function(){
+  var pages=[].slice.call(document.querySelectorAll('.page'));
+  var dots=document.getElementById('dots'), count=document.getElementById('count');
+  var prev=document.getElementById('prev'), next=document.getElementById('next');
+  var i=0;
+  pages.forEach(function(p,n){
+    var b=document.createElement('button');
+    b.setAttribute('aria-label','Go to page '+(n+1));
+    b.onclick=function(){show(n)};
+    dots.appendChild(b);
+  });
+  function show(n){
+    i=Math.max(0,Math.min(pages.length-1,n));
+    pages.forEach(function(p,k){
+      p.classList.toggle('is-on',k===i);
+      p.classList.toggle('is-past',k<i);
+      p.classList.toggle('is-next',k>i);
+      p.setAttribute('aria-hidden',k===i?'false':'true');
+      if('inert' in p){ p.inert = (k!==i) && window.innerWidth>760; }
+    });
+    [].forEach.call(dots.children,function(d,k){d.setAttribute('aria-current',k===i)});
+    count.textContent=(i+1)+' / '+pages.length;
+    prev.disabled=i===0; next.disabled=i===pages.length-1;
+  }
+  prev.onclick=function(){show(i-1)};
+  next.onclick=function(){show(i+1)};
+  document.querySelectorAll('[data-go]').forEach(function(b){b.onclick=function(){show(+b.dataset.go)}});
+  document.addEventListener('keydown',function(e){
+    if(e.key==='ArrowRight')show(i+1);
+    if(e.key==='ArrowLeft')show(i-1);
+  });
+  var x0=null;
+  document.getElementById('book').addEventListener('touchstart',function(e){x0=e.touches[0].clientX},{passive:true});
+  document.getElementById('book').addEventListener('touchend',function(e){
+    if(x0===null)return; var dx=e.changedTouches[0].clientX-x0;
+    if(Math.abs(dx)>50) show(i+(dx<0?1:-1)); x0=null;
+  });
+  window.addEventListener('resize',function(){show(i)});
+  show(0);
+})();
+</script>
+</body>
+</html>
